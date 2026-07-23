@@ -124,11 +124,11 @@ Progress Tracking
 
 ### Home Page
 
-![SkinAI Home Page](screenshots/home.png)
+![SkinAI Home Page]https://github.com/dishavreddy/skinai_personalized-skincare/blob/main/home.png
 
 ### AI Skin Analysis
 
-![SkinAI AI Skin Analysis]https://github.com/dishavreddy/skinai_personalized-skincare/blob/main/analysis.png
+![SkinAI AI Skin Analysis] https://github.com/dishavreddy/skinai_personalized-skincare/blob/main/analysis.png
 
 ---
 
