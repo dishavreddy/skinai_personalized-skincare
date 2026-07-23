@@ -129,6 +129,7 @@ Progress Tracking
 ### AI Skin Analysis
 
 ![SkinAI AI Skin Analysis] https://github.com/dishavreddy/skinai_personalized-skincare/blob/main/analysis.png
+[Result] https://github.com/dishavreddy/skinai_personalized-skincare/blob/main/result.png
 
 ---
 
