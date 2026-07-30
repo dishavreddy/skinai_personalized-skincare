@@ -1,4 +1,6 @@
-<img width="1896" height="922" alt="image" src="https://github.com/user-attachments/assets/aa303c0a-a12a-4454-8c35-b9448650efa7" /># SkinAI — AI-Powered Personalized Skincare Analysis
+
+# SkinAI — AI-Powered Personalized Skincare Analysis
+<img width="1900" height="923" alt="image" src="https://github.com/user-attachments/assets/014eb7f2-4088-44a1-bc0a-0b4b1a3f6b64" />
 
 A Vite + React skincare analysis demo with a Flask/OpenCV API. The analysis is derived from uploaded image pixels (brightness, color balance, red-spot signal, highlight signal, contrast, and Laplacian texture); it is informative only and not medical advice.
 
