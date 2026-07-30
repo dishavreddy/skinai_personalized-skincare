@@ -1,0 +1,2 @@
+import { Link } from 'react-router-dom'
+export default function BeforeAfter(){return <section className="compare-banner"><div><div className="section-label">PROGRESS TRACKING</div><h2>See progress, not just promises.</h2><p>Upload a current image and a baseline photo to compare image-derived scores side by side.</p><Link className="button" to="/scan?compare=true">Compare two scans →</Link></div><div className="compare-art"><span>BEFORE</span><span>AFTER</span></div></section>}

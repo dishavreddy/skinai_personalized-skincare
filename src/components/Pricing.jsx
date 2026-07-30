@@ -1,0 +1,2 @@
+import { Link } from 'react-router-dom'
+export default function Pricing(){return <section id="pricing" className="pricing"><div className="section-label">YOUR SKIN · YOUR DATA</div><h2>Start your personalized<br/><em>skin journey today.</em></h2><p>One scan. Nine metrics. A routine built around you. No commitment, no clutter.</p><Link className="button" to="/scan">Scan Your Skin Now →</Link></section>}
