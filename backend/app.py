@@ -46,8 +46,10 @@ def analyze(image):
     dark_delta = max(0, gray.mean() - eye_band.mean())
     scores = {
         'acne': clamp(100 - (red_spots * 2.4 + texture * .28)),
+        'redness': clamp(100 - red_spots * 2.7),
         'hydration': clamp(brightness * .58 + (100 - saturation) * .18 + 25),
         'glow': clamp(brightness * .70 + (100 - min(100, brightness_std * 2)) * .30),
+        'tone_evenness': clamp(100 - min(100, brightness_std * 1.8 + red_spots * .22)),
         'texture': clamp(100 - texture * .72),
         'dark_circles': clamp(100 - dark_delta * 2.5),
         'oiliness': clamp(100 - highlights * 2.1 - saturation * .12 + 20),

@@ -1,2 +1,2 @@
-import { Link } from 'react-router-dom'
-export default function Pricing(){return <section id="pricing" className="pricing"><div className="section-label">YOUR SKIN · YOUR DATA</div><h2>Start your personalized<br/><em>skin journey today.</em></h2><p>One scan. Nine metrics. A routine built around you. No commitment, no clutter.</p><Link className="button" to="/scan">Scan Your Skin Now →</Link></section>}
+import { useScan } from '../context/ScanContext.jsx'
+export default function Pricing(){const {startScan}=useScan();return <section id="pricing" className="pricing"><div className="section-label">YOUR SKIN · YOUR DATA</div><h2>Start your personalized<br/><em>skin journey today.</em></h2><p>One scan. Nine metrics. A routine built around you. No commitment, no clutter.</p><button className="button" onClick={startScan}>Scan Your Skin Now →</button></section>}
