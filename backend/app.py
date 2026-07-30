@@ -85,4 +85,4 @@ def endpoint():
         app.logger.exception('Analysis failed')
         return jsonify(error='Unable to analyze this image.'), 500
 
-if __name__ == '__main__': app.run(host='0.0.0.0', port=5000, debug=True)
+if __name__ == '__main__': app.run(host='0.0.0.0', port=int(__import__('os').environ.get('PORT', 5000)))
