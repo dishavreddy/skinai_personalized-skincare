@@ -111,15 +111,29 @@ def analyze(image):
     texture = min(100, cv2.Laplacian(gray, cv2.CV_64F).var() / 6)
     brightness_std = gray.std()
     red = roi[:,:,2].astype(np.float32); green = roi[:,:,1].astype(np.float32); blue = roi[:,:,0].astype(np.float32)
-    redness = np.maximum(0, red - (green + blue) / 2)
-    red_spots = float((redness > 24).mean() * 100)
+    # Blur first to suppress JPEG noise before thresholding redness
+    roi_blur = cv2.GaussianBlur(roi, (5, 5), 0)
+    red_b = roi_blur[:,:,2].astype(np.float32)
+    green_b = roi_blur[:,:,1].astype(np.float32)
+    blue_b = roi_blur[:,:,0].astype(np.float32)
+    redness = np.maximum(0, red_b - (green_b + blue_b) / 2)
+    # Lower threshold (8 instead of 24) catches subtle inflammation.
+    # Count connected red regions (spots) rather than raw pixel fraction.
+    red_mask = (redness > 8).astype(np.uint8)
+    num_spots, _, stats, _ = cv2.connectedComponentsWithStats(red_mask, connectivity=8)
+    # Only count components larger than 0.03% of ROI area (filters single-pixel noise)
+    min_spot_px = max(4, int(roi.shape[0] * roi.shape[1] * 0.0003))
+    real_spots = sum(1 for i in range(1, num_spots) if stats[i, cv2.CC_STAT_AREA] >= min_spot_px)
+    red_spots = float((redness > 8).mean() * 100)   # pixel fraction — used by redness/tone scores
+    spot_density = min(100, real_spots * 4)          # spot count scaled 0-100 — used by acne score
     highlights = float(((hsv[:,:,2] > 220) & (hsv[:,:,1] < 75)).mean() * 100)
     # The upper middle face has most reliable under-eye signal when a face is detected;
     # fallback crop keeps the method image-derived for images without a detected face.
     eye_band = gray[int(height*.32):int(height*.58), int(width*.15):int(width*.85)]
     dark_delta = max(0, gray.mean() - eye_band.mean())
     scores = {
-        'acne': clamp(100 - (red_spots * 2.4 + texture * .28)),
+        # Acne: driven by localized spot count + red pixel coverage + texture
+        'acne': clamp(100 - (spot_density * 0.55 + red_spots * 1.2 + texture * .18)),
         'redness': clamp(100 - red_spots * 2.7),
         'hydration': clamp(brightness * .58 + (100 - saturation) * .18 + 25),
         'glow': clamp(brightness * .70 + (100 - min(100, brightness_std * 2)) * .30),
