@@ -1,1 +1,1 @@
-export default function Footer(){return <footer id="contact"><strong>✦ SkinAI</strong><span>AI-assisted skincare insights. Not medical advice.</span><a href="mailto:hello@skinai.local">hello@skinai.local</a></footer>}
+export default function Footer(){return <footer className="redesign-footer"><div className="redesign-wrap"><span>© 2026 SkinAI</span><span>Guidance only. Not a medical diagnosis.</span></div></footer>}

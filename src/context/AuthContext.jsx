@@ -3,22 +3,44 @@ import { supabase } from '../supabaseClient.js'
 
 const AuthContext = createContext(null)
 
+// Supabase Auth users keep custom fields inside `user_metadata`, not at `user.name`.
+// Normalize the session once at the auth boundary so every post-login consumer has a stable display name.
+function normalizeUser(rawUser) {
+  if (!rawUser) return null
+  const metadata = rawUser.user_metadata && typeof rawUser.user_metadata === 'object'
+    ? rawUser.user_metadata
+    : {}
+  const text = (value) => typeof value === 'string' ? value.trim() : ''
+  const displayName = text(metadata.name)
+    || text(metadata.full_name)
+    || text(rawUser.email).split('@')[0]
+    || 'SkinAI member'
+  return { ...rawUser, displayName }
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [sessionError, setSessionError] = useState(null)
 
   // Initialise from existing session on mount, then subscribe to auth changes
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
+    let mounted = true
+    supabase.auth.getSession().then(({ data, error }) => {
+      if (!mounted) return
+      setSessionError(error?.message ?? null)
+      setUser(normalizeUser(data?.session?.user))
       setLoading(false)
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
+      if (!mounted) return
+      setSessionError(null)
+      setUser(normalizeUser(session?.user))
+      setLoading(false)
     })
 
-    return () => subscription.unsubscribe()
+    return () => { mounted = false; subscription.unsubscribe() }
   }, [])
 
   const signIn = async (email, password) => {
@@ -71,7 +93,7 @@ export function AuthProvider({ children }) {
   }, [user])
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signUp, logout, saveScan, loadScans }}>
+    <AuthContext.Provider value={{ user, loading, sessionError, signIn, signUp, logout, saveScan, loadScans }}>
       {children}
     </AuthContext.Provider>
   )

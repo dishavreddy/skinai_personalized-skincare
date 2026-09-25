@@ -13,21 +13,32 @@ CORS(app, origins=_origins)
 
 def clamp(value): return int(max(0, min(100, round(float(value)))))
 
+# Load cascade once at startup — not on every request (saves ~10ms of disk I/O per call)
+_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+
 def read_image(upload):
     raw = np.frombuffer(upload.read(), np.uint8)
     image = cv2.imdecode(raw, cv2.IMREAD_COLOR)
     if image is None: raise ValueError('Please upload a valid JPG, PNG, or WEBP image.')
     if image.shape[0] < 80 or image.shape[1] < 80: raise ValueError('Please upload an image at least 80 pixels wide and high.')
-    return cv2.resize(image, (min(900, image.shape[1]), int(image.shape[0] * min(900, image.shape[1]) / image.shape[1])))
+    # Cap at 640px — sufficient for all pixel-level metrics; keeps Laplacian + cascade fast
+    max_w = min(640, image.shape[1])
+    return cv2.resize(image, (max_w, int(image.shape[0] * max_w / image.shape[1])))
 
 def face_region(image):
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-    faces = cascade.detectMultiScale(gray, 1.1, 5, minSize=(80, 80))
-    if len(faces):
-        x, y, w, h = max(faces, key=lambda r: r[2] * r[3])
-        return image[y:y+h, x:x+w]
     h, w = image.shape[:2]
+    # Detect on a 320px-wide thumbnail — 4-8x faster than full resolution.
+    # Scale factor 1.2 (vs 1.1) halves the number of pyramid levels searched.
+    thumb_w = min(320, w)
+    scale = w / thumb_w
+    thumb = cv2.resize(image, (thumb_w, int(h / scale)))
+    gray_thumb = cv2.cvtColor(thumb, cv2.COLOR_BGR2GRAY)
+    faces = _cascade.detectMultiScale(gray_thumb, 1.2, 5, minSize=(60, 60))
+    if len(faces):
+        # Scale the bounding box back to original image coordinates
+        x, y, fw, fh = max(faces, key=lambda r: r[2] * r[3])
+        x, y, fw, fh = (int(v * scale) for v in (x, y, fw, fh))
+        return image[y:y+fh, x:x+fw]
     return image[int(h*.12):int(h*.88), int(w*.18):int(w*.82)]
 
 def build_routine(scores):

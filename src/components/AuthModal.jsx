@@ -39,7 +39,7 @@ export default function AuthModal({ open, close }) {
       <form className="auth-modal" onSubmit={submit}>
         <button type="button" className="modal-close" onClick={close}>×</button>
         <div className="section-label">SKINAI ACCOUNT</div>
-        <h2>{signup ? 'Create your account' : 'Welcome back'}</h2>
+        <h2>{signup ? 'Create your account' : 'Hi, welcome to SkinAI'}</h2>
         {signup && (
           <label>Name<input value={name} onChange={e => setName(e.target.value)} placeholder="Your name" /></label>
         )}
